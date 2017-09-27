@@ -1,0 +1,298 @@
+﻿{
+	"paragraphs": [
+		{
+			"text": "%spark.pyspark\nfrom pyspark.streaming import StreamingContext",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-11T22:19:33+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391458_-209338517",
+			"id": "20170822-225335_1322903405",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-11T22:19:33+0000",
+			"dateFinished": "2017-09-11T22:20:04+0000",
+			"status": "FINISHED",
+			"progressUpdateIntervalMs": 500,
+			"focus": true,
+			"$$hashKey": "object:2043"
+		},
+		{
+			"text": "%spark.pyspark\nfrom pyspark.streaming.kinesis import KinesisUtils,DStream,InitialPositionInStream\nimport json\nimport pyspark.sql.types as pst\nfrom pyspark.sql import Row\nfrom datetime import datetime\n",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T18:44:32+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391458_-209338517",
+			"id": "20170822-225613_1368990105",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-06T18:44:32+0000",
+			"dateFinished": "2017-09-06T18:44:32+0000",
+			"status": "FINISHED",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2044"
+		},
+		{
+			"text": "%spark.pyspark\n\n\ndef infer_schema(prototype,structure):\n    '''prototype is the first record of the rdd. Structure is the schema we parsed out earlier'''\n    mysql_type_mappings = {\n        'bigint' : pst.LongType(),\n        'bit' : pst.StringType(),\n        'int' : pst.LongType(),\n        'char': pst.StringType(),\n        'text': pst.StringType(),\n        'varchar' : pst.StringType(),\n        'double' : pst.DoubleType(),\n        'decimal': pst.DoubleType(),\n        'datetime': pst.StringType(),\n        'date': pst.StringType()\n    }\n    \n    schemarec = pst.StructType([pst.StructField(key,mysql_type_mappings[structure[key].split('(')[0]],True ) for key, value in sorted(prototype.items())])\n    return schemarec\n    \n\n\ndef df_from_rdd(rdd, schema, sql):\n    \"\"\"creates a dataframe out of an rdd of dicts, with schema inferred from a prototype record\"\"\"\n    return sql.createDataFrame(rdd, schema)",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T18:44:34+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391459_-209723266",
+			"id": "20170825-171728_1137473363",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-06T18:44:34+0000",
+			"dateFinished": "2017-09-06T18:44:34+0000",
+			"status": "FINISHED",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2045"
+		},
+		{
+			"text": "%spark.pyspark\ndef rectoRow(rec):\n    rdict = json.loads(rec)\n    res={}\n    for k in rdict.keys():\n        if k == 'row':\n            temprow = {}\n            if rdict['type'] == \"UpdateRowsEvent\":\n                for key, value in rdict['row']['after_values'].items():\n                    temprow[key] = value\n            else:\n                for key, value in rdict['row']['values'].items():\n                    temprow[key] = value\n            temprow['event_type'] = rdict['type']\n            if rdict['type'] == \"DeleteRowsEvent\":\n                temprow['metadata_deleted'] = \"Y\"\n            else:\n                temprow['metadata_deleted'] = 'N'\n            temprow['metadata_timestamp'] = rdict['metadata_timestamp']\n            res['row'] = json.dumps(temprow)\n            \n        elif k == 'structure':\n            structure = {}\n            for key, value in rdict[k].items():\n                structure[key] = value\n            structure['metadata_timestamp'] = \"varchar(20)\"\n            structure['metadata_deleted'] = \"char(1)\"\n            structure['event_type'] = \"varchar(20)\"\n            res['structure'] = json.dumps(structure)\n        else:\n            res[k] = str(rdict[k])\n    return Row(**res)\n    ",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T18:44:37+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391459_-209723266",
+			"id": "20170822-225642_1750377737",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-06T18:44:37+0000",
+			"dateFinished": "2017-09-06T18:44:37+0000",
+			"status": "FINISHED",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2046"
+		},
+		{
+			"text": "%spark.pyspark\ndef processRDD(rdd):\n    ctime = datetime.now()\n    if rdd.isEmpty() == False:\n        df = rdd.toDF()\n        #df.show()\n        tablist = df.select('table').distinct().collect()\n        rddlist = {}\n        for tr in tablist:\n            \n            temp = df.filter(df.table==tr.table)\n            if temp.rdd.isEmpty() == False:\n                    \n                prototype = temp.take(1)[0]\n                schemadict = json.loads(prototype['structure'])\n                datarec = json.loads(prototype['row'])\n                trdd = temp.rdd.map(lambda x:Row(**json.loads(x.row)))\n                schema = infer_schema(datarec,schemadict)\n                rddlist[tr.table] = df_from_rdd(trdd,schema,spark).coalesce(1)\n                #rddlist[tr.table].show()\n\n        for dframe in rddlist.keys():\n            outpath = \"s3://emr-hightail-prod/taboutput/\" + dframe + \"/\" + str(ctime.year) + \"/\" + str(ctime.month) + \"/\" + str(ctime.day)  \n            outpath += \"/\" + str(ctime.hour) + \"/\" + str(ctime.minute) + \"/\"\n            rddlist[dframe].write.json(outpath)\n            \n    ",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T18:44:40+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391460_-211647010",
+			"id": "20170824-041237_350950374",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-06T18:44:41+0000",
+			"dateFinished": "2017-09-06T18:44:41+0000",
+			"status": "FINISHED",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2047"
+		},
+		{
+			"text": "%spark.pyspark\ntry:\n    appName = 'YOURAPPNAME'\n    streamName = 'YOURSTREAMNAME'\n    endpointUrl = 'https://kinesis.us-west-2.amazonaws.com'\n    regionName = 'us-west-2'\n    ssc = StreamingContext(sc,60)\n    lines = KinesisUtils.createStream(ssc, appName, streamName, endpointUrl, regionName, InitialPositionInStream.LATEST, 5)\n    lines.map(rectoRow).foreachRDD(processRDD)\n    ssc.start()\n    ssc.awaitTermination()\nexcept KeyboardInterrupt as e:\n    print \"User requested stop\"\n    ssc.stop(False,True)",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T19:12:31+0000",
+			"config": {
+				"colWidth": 12,
+				"editorMode": "ace/mode/python",
+				"results": {
+				},
+				"enabled": true,
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				}
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"results": {
+				"code": "SUCCESS",
+				"msg": [
+					{
+						"type": "TEXT",
+						"data": "User requested stop\n"
+					}
+				]
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504295391460_-211647010",
+			"id": "20170825-192228_1919025793",
+			"dateCreated": "2017-09-01T19:49:51+0000",
+			"dateStarted": "2017-09-06T19:12:31+0000",
+			"dateFinished": "2017-09-06T19:15:00+0000",
+			"status": "ABORT",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2048"
+		},
+		{
+			"text": "%spark.pyspark\n",
+			"user": "anonymous",
+			"dateUpdated": "2017-09-06T18:35:36+0000",
+			"config": {
+				"colWidth": 12,
+				"enabled": true,
+				"results": {
+				},
+				"editorSetting": {
+					"language": "python",
+					"editOnDblClick": false
+				},
+				"editorMode": "ace/mode/python"
+			},
+			"settings": {
+				"params": {
+				},
+				"forms": {
+				}
+			},
+			"apps": [
+
+			],
+			"jobName": "paragraph_1504722936164_1066105874",
+			"id": "20170906-183536_1474173582",
+			"dateCreated": "2017-09-06T18:35:36+0000",
+			"status": "READY",
+			"progressUpdateIntervalMs": 500,
+			"$$hashKey": "object:2049"
+		}
+	],
+	"name": "binlogkinesisconsumer_v3",
+	"id": "2CSNP6AXP",
+	"angularObjects": {
+		"2BRWU4WXC:shared_process": [
+
+		],
+		"2AM1YV5CU:shared_process": [
+
+		],
+		"2AJXGMUUJ:shared_process": [
+
+		],
+		"2ANGGHHMQ:shared_process": [
+
+		],
+		"2AKK3QQXU:shared_process": [
+
+		]
+	},
+	"config": {
+		"looknfeel": "default",
+		"personalizedMode": "false"
+	},
+	"info": {
+	}
+}
